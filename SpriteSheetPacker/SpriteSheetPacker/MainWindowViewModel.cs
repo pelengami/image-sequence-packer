@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -9,6 +10,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using SpriteSheetPacker.Extensions;
 using SpriteSheetPacker.Model;
 using SpriteSheetPacker.Service;
+using SpriteSheetPacker.Util;
 
 namespace SpriteSheetPacker
 {
@@ -16,10 +18,15 @@ namespace SpriteSheetPacker
 	{
 		private BitmapSource _packedImagePreview;
 		private readonly IPacker _packer;
+		private readonly SaveFileDialogService _saveFileDialogService;
 		private bool _isPacking;
 
 		public MainWindowViewModel()
 		{
+			ImagesPath = new ObservableCollection<string>();
+
+			_saveFileDialogService = new SaveFileDialogService();
+
 			var foreignFunctionCaller = new ForeignFunctionCaller();
 			_packer = new ForeignPacker(foreignFunctionCaller);
 
@@ -48,6 +55,10 @@ namespace SpriteSheetPacker
 
 		public int Padding { get; set; }
 
+		public bool IsBlackTrimmingEnabled { get; set; }
+
+		public bool IsLivePreviewEnabed { get; set; }
+
 		public List<Size> OutputTextureSizes { get; }
 
 		public BitmapSource PackedImagePreview
@@ -61,6 +72,8 @@ namespace SpriteSheetPacker
 				OnPropertyChanged();
 			}
 		}
+
+		public ObservableCollection<string> ImagesPath { get; }
 
 		public bool IsPacking
 		{
@@ -78,11 +91,18 @@ namespace SpriteSheetPacker
 		{
 			IsPacking = true;
 
-			var packerImage = await _packer.PackAsync(new PackParameters(2, 2, 50, 20, new Size(1024, 768)));
+			var packerImage = await _packer.PackAsync(new PackParameters(2, 2, 50, 20, new Size(1024, 768), ImagesPath.ToList()));
 
 			PackedImagePreview = packerImage.ToBitmapSource();
 
 			IsPacking = false;
+
+			string saveFilePath;
+			if (_saveFileDialogService.SaveFileDialog(out saveFilePath))
+			{
+				var bitmapWriter = new BitmapStreamWriter();
+				bitmapWriter.Write(saveFilePath, PackedImagePreview);
+			}
 		}
 
 		private void OnPropertyChanged([CallerMemberName] string propertyName = null)
