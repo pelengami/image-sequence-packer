@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Threading.Tasks;
 
-namespace SpriteSheetPacker.Model
+namespace ImageSequencePacker.Model
 {
 	internal interface IPacker
 	{

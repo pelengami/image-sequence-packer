@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System.Drawing;
+using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace SpriteSheetPacker.Util
+namespace ImageSequencePacker.Util
 {
-	internal sealed class BitmapStreamWriter
+	internal sealed class BitmapReaderWriter
 	{
 		public void Write(string filePath, BitmapSource bitmapSource)
 		{
@@ -13,6 +14,12 @@ namespace SpriteSheetPacker.Util
 				encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
 				encoder.Save(fileStream);
 			}
+		}
+
+		public Bitmap Read(string filePath)
+		{
+			var bitmap = (Bitmap)Image.FromFile(filePath);
+			return bitmap;
 		}
 	}
 }

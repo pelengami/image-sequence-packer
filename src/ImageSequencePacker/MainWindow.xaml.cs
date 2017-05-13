@@ -1,4 +1,4 @@
-﻿namespace SpriteSheetPacker
+﻿namespace ImageSequencePacker
 {
 	public partial class MainWindow
 	{

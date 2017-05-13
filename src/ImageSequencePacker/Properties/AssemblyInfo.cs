@@ -2,11 +2,11 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 
-[assembly: AssemblyTitle("SpriteSheetPacker")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ImageSequencePacker")]
+[assembly: AssemblyDescription("Creating a flipbook from the sequence of the images, without preserving the proportions and with cropping images using alpha threshold")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SpriteSheetPacker")]
+[assembly: AssemblyProduct("ImageSequencePacker")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -15,7 +15,7 @@ using System.Windows;
 
 [assembly: ThemeInfo(
 	ResourceDictionaryLocation.None,
-	ResourceDictionaryLocation.SourceAssembly 
+	ResourceDictionaryLocation.SourceAssembly
 )]
 
 [assembly: AssemblyVersion("1.0.0.0")]

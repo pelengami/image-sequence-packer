@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 
-namespace SpriteSheetPacker.Extensions
+namespace ImageSequencePacker.Extensions
 {
 	internal static class BitmapExtensions
 	{

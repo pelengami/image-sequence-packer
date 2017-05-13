@@ -4,11 +4,10 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
-using SpriteSheetPacker.Extensions;
-using SpriteSheetPacker.Util;
+using ImageSequencePacker.Extensions;
+using ImageSequencePacker.Util;
 
-namespace SpriteSheetPacker.Model
+namespace ImageSequencePacker.Model
 {
 	internal sealed class Packer : IPacker
 	{
@@ -17,7 +16,7 @@ namespace SpriteSheetPacker.Model
 			return await Task.Run(() => PackSync(packParameters));
 		}
 
-		private Bitmap PackSync(PackParameters packParameters)
+		private static Bitmap PackSync(PackParameters packParameters)
 		{
 			try
 			{
@@ -25,7 +24,7 @@ namespace SpriteSheetPacker.Model
 
 				foreach (var path in packParameters.ImagesPath)
 				{
-					var bitmap = (Bitmap)Image.FromFile(path);
+					var bitmap = new BitmapReaderWriter().Read(path);
 					originalBitmaps.Add(bitmap);
 				}
 
@@ -35,7 +34,7 @@ namespace SpriteSheetPacker.Model
 				Rectangle avgCropSize;
 
 				if (packParameters.IsAutoSizeEnabled)
-					avgCropSize = CalcAvgCropSizeAlpha(originalBitmaps, packParameters.AlphaTreshold);
+					avgCropSize = CalcAvgCropSizeAlpha(originalBitmaps, packParameters.AlphaThreshold);
 				else
 				{
 					var firstBitmap = originalBitmaps[0];
@@ -53,8 +52,8 @@ namespace SpriteSheetPacker.Model
 
 				foreach (var bitmap in originalBitmaps)
 				{
-					var cropedBitmap = CropBitmap(bitmap, avgCropSize);
-					var resizedBitmap = ImageResizer.CreateResizedBitmap(cropedBitmap.ToBitmapSource(), eachTextureWidth, eachTextureHeight);
+					var cropedBitmap = BitmapUitl.CropBitmap(bitmap, avgCropSize);
+					var resizedBitmap = BitmapUitl.CreateResizedBitmap(cropedBitmap.ToBitmapSource(), eachTextureWidth, eachTextureHeight);
 					resizedBitmaps.Add(resizedBitmap);
 				}
 
@@ -64,6 +63,7 @@ namespace SpriteSheetPacker.Model
 			}
 			catch (Exception ex)
 			{
+				MessageBox.Show(ex.ToString());
 				return null;
 			}
 		}
@@ -71,6 +71,7 @@ namespace SpriteSheetPacker.Model
 		private static Bitmap Pack(IEnumerable<Bitmap> bitmaps, PackParameters packParameters)
 		{
 			var packedBitmap = new Bitmap((int)packParameters.OutputTextureSize.Width, (int)packParameters.OutputTextureSize.Height);
+
 			var lockPackedBitmap = new LockBitmap(packedBitmap);
 			lockPackedBitmap.LockBits();
 
@@ -105,20 +106,6 @@ namespace SpriteSheetPacker.Model
 			lockPackedBitmap.UnlockBits();
 
 			return packedBitmap;
-		}
-
-		private Bitmap CropBitmap(Bitmap bitmap, Rectangle cropSize)
-		{
-			var target = new Bitmap(cropSize.Width, cropSize.Height);
-
-			using (var graphics = Graphics.FromImage(target))
-			{
-				graphics.DrawImage(bitmap, new Rectangle(0, 0, target.Width, target.Height),
-					cropSize,
-					GraphicsUnit.Pixel);
-			}
-
-			return target;
 		}
 
 		private static Rectangle CalcAvgCropSizeAlpha(List<Bitmap> bitmaps, int alphaThreshold)

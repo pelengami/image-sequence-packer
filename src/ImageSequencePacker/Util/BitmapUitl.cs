@@ -4,10 +4,24 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SpriteSheetPacker.Util
+namespace ImageSequencePacker.Util
 {
-	internal sealed class ImageResizer
+	internal sealed class BitmapUitl
 	{
+		public static Bitmap CropBitmap(Bitmap bitmap, Rectangle cropSize)
+		{
+			var target = new Bitmap(cropSize.Width, cropSize.Height);
+
+			using (var graphics = Graphics.FromImage(target))
+			{
+				graphics.DrawImage(bitmap, new Rectangle(0, 0, target.Width, target.Height),
+					cropSize,
+					GraphicsUnit.Pixel);
+			}
+
+			return target;
+		}
+
 		public static Bitmap CreateResizedBitmap(ImageSource source, int width, int height)
 		{
 			var rect = new Rect(0, 0, width, height);

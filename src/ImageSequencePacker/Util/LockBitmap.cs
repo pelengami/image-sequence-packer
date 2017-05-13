@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace SpriteSheetPacker.Util
+namespace ImageSequencePacker.Util
 {
 	internal sealed class LockBitmap
 	{

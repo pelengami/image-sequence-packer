@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
 
-namespace SpriteSheetPacker.Service
+namespace ImageSequencePacker.Service
 {
 	internal sealed class SaveFileDialogService
 	{

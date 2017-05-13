@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C982C4E3-4DC5-4159-91DF-C59383B2BD36}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>SpriteSheetPacker</RootNamespace>
-    <AssemblyName>SpriteSheetPacker</AssemblyName>
+    <RootNamespace>ImageSequencePacker</RootNamespace>
+    <AssemblyName>ImageSequencePacker</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -74,6 +74,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Images\icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight, Version=5.3.0.19026, Culture=neutral, PublicKeyToken=e7570ab207bcb616, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.3.0.0\lib\net45\GalaSoft.MvvmLight.dll</HintPath>
@@ -116,10 +119,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Util\ImageResizer.cs" />
+    <Compile Include="Util\BitmapUitl.cs" />
     <Compile Include="Util\LockBitmap.cs" />
     <Compile Include="Service\SaveFileDialogService.cs" />
-    <Compile Include="Util\BitmapStreamWriter.cs" />
+    <Compile Include="Util\BitmapReaderWriter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -165,7 +168,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\icon.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\images.png" />
   </ItemGroup>

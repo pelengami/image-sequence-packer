@@ -9,12 +9,12 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight.CommandWpf;
-using SpriteSheetPacker.Extensions;
-using SpriteSheetPacker.Model;
-using SpriteSheetPacker.Service;
-using SpriteSheetPacker.Util;
+using ImageSequencePacker.Extensions;
+using ImageSequencePacker.Model;
+using ImageSequencePacker.Service;
+using ImageSequencePacker.Util;
 
-namespace SpriteSheetPacker
+namespace ImageSequencePacker
 {
 	public sealed class MainWindowViewModel : INotifyPropertyChanged
 	{
@@ -29,8 +29,6 @@ namespace SpriteSheetPacker
 		private readonly IPacker _packer;
 		private readonly SaveFileDialogService _saveFileDialogService;
 		private bool _isPacking;
-		private int _cropSizeWidth;
-		private int _cropSizeHeight;
 
 		public MainWindowViewModel()
 		{
@@ -40,14 +38,14 @@ namespace SpriteSheetPacker
 
 			_packer = new Packer();
 
-			PackCommand = new RelayCommand(OnPackCommand, OnCanExecutePackCommand);
-			PreviewCommand = new RelayCommand(OnPreviewCommand, OnCanExecutePackCommand);
+			PackCommand = new RelayCommand(OnPackCommand);
+			PreviewCommand = new RelayCommand(OnPreviewCommand);
 			DropCommand = new RelayCommand<DragEventArgs>(OnDropCommand);
 
 			RowsCount = DefaultRowsCount;
 			ColumnsCount = DefaultColumnsCount;
 			Padding = DefaultPadding;
-			AlphaTreshold = DefaultAlphaThreshold;
+			AlphaThreshold = DefaultAlphaThreshold;
 
 			OutputTextureSizes = new List<Size>
 			{
@@ -74,33 +72,13 @@ namespace SpriteSheetPacker
 
 		public int RowsCount { get; set; }
 
-		public int AlphaTreshold { get; set; }
+		public int AlphaThreshold { get; set; }
 
 		public int Padding { get; set; }
 
-		public int CropSizeWidth
-		{
-			get => _cropSizeWidth;
-			set
-			{
-				if (value == _cropSizeWidth)
-					return;
-				_cropSizeWidth = value;
-				OnPropertyChanged();
-			}
-		}
+		public int CropSizeWidth { get; set; }
 
-		public int CropSizeHeight
-		{
-			get => _cropSizeHeight;
-			set
-			{
-				if (value == _cropSizeHeight)
-					return;
-				_cropSizeHeight = value;
-				OnPropertyChanged();
-			}
-		}
+		public int CropSizeHeight { get; set; }
 
 		public bool IsCropAutoSizeEnabled { get; set; }
 
@@ -138,7 +116,7 @@ namespace SpriteSheetPacker
 		{
 			IsPacking = true;
 
-			var packParameters = new PackParameters(ColumnsCount, RowsCount, AlphaTreshold, Padding, SelectedOutputTextureSize,
+			var packParameters = new PackParameters(ColumnsCount, RowsCount, AlphaThreshold, Padding, SelectedOutputTextureSize,
 				ImagesPath.ToList(), IsCropAutoSizeEnabled, CropSizeWidth, CropSizeHeight);
 
 			var packedImage = await _packer.PackAsync(packParameters);
@@ -162,18 +140,13 @@ namespace SpriteSheetPacker
 			if (!_saveFileDialogService.SaveFileDialog(out saveFilePath))
 				return;
 
-			var bitmapWriter = new BitmapStreamWriter();
+			var bitmapWriter = new BitmapReaderWriter();
 			bitmapWriter.Write(saveFilePath, PackedImagePreview);
 		}
 
 		private async void OnPreviewCommand()
 		{
 			await PackImages();
-		}
-
-		private bool OnCanExecutePackCommand()
-		{
-			return ImagesPath.Any();
 		}
 
 		private void OnDropCommand(DragEventArgs obj)
