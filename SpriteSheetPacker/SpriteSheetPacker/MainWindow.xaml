@@ -8,18 +8,19 @@
 					  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 					  xmlns:command="http://www.galasoft.ch/mvvmlight"
 					  mc:Ignorable="d"
+					  WindowTitleBrush="Black"
 					  WindowStartupLocation="CenterScreen"
 					  GlowBrush="Black"
 					  Title="SpriteSheetPacker"
-					  Height="620"
-					  Width="800">
+					  Height="650"
+					  Width="700">
 	<Window.Resources>
 		<local:MainWindowViewModel x:Key="MainWindowViewModel" />
 	</Window.Resources>
 	<Grid DataContext="{StaticResource MainWindowViewModel}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="250" />
+			<ColumnDefinition Width="220" />
 		</Grid.ColumnDefinitions>
 
 		<Image Margin="5"
@@ -44,13 +45,10 @@
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
+					<RowDefinition Height="100"></RowDefinition>
 					<RowDefinition Height="*"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="100"></RowDefinition>
+					<RowDefinition Height="110"></RowDefinition>
 				</Grid.RowDefinitions>
 
 				<Border Grid.Row="0"
@@ -77,12 +75,12 @@
 							 Grid.Column="0"
 							 Height="20"
 							 Margin="5"
-							 Text="{Binding TilesX}"></TextBox>
+							 Text="{Binding RowsCount}" />
 					<TextBox Grid.Row="1"
 							 Grid.Column="1"
 							 Margin="5"
 							 Height="20"
-							 Text="{Binding TilesY}"></TextBox>
+							 Text="{Binding ColumnsCount}" />
 				</Grid>
 
 				<Border Grid.Row="2"
@@ -102,7 +100,8 @@
 							   Text="Output Texture Dimension" />
 					<ComboBox Grid.Row="1"
 							  Margin="5"
-							  ItemsSource="{Binding OutputTextureSizes}" />
+							  ItemsSource="{Binding OutputTextureSizes}"
+							  SelectedItem="{Binding SelectedOutputTextureSize}" />
 				</Grid>
 
 				<Border Grid.Row="4"
@@ -156,11 +155,36 @@
 				<Grid Grid.Row="9"
 					  Margin="5"
 					  HorizontalAlignment="Stretch">
-					<CheckBox Margin="5"
-							  Height="20"
-							  Content="Black Trimming"
-							  FontWeight="Bold"
-							  IsChecked="{Binding IsBlackTrimmingEnabled}"></CheckBox>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<TextBlock Grid.Row="0"
+							   HorizontalAlignment="Center"
+							   FontWeight="Bold"
+							   Grid.ColumnSpan="2"
+							   Text="Crop Size" />
+					<CheckBox Grid.Row="1"
+							  Grid.Column="0"
+							  Margin="5"
+							  Grid.ColumnSpan="2"
+							  Content="Auto Size"
+							  IsChecked="{Binding IsCropAutoSizeEnabled}" />
+					<TextBox Grid.Row="2"
+							 Grid.Column="0"
+							 Height="20"
+							 Margin="5"
+							 Text="{Binding CropSizeWidth}" />
+					<TextBox Grid.Row="2"
+							 Grid.Column="1"
+							 Margin="5"
+							 Height="20"
+							 Text="{Binding CropSizeHeight}" />
 				</Grid>
 
 				<Border Grid.Row="10"
@@ -171,38 +195,29 @@
 				<Grid Grid.Row="11"
 					  Margin="5"
 					  HorizontalAlignment="Stretch">
-					<CheckBox Margin="5"
-							  Height="20"
-							  Content="Live Preview"
-							  FontWeight="Bold"
-							  IsChecked="{Binding IsLivePreviewEnabed}"></CheckBox>
-				</Grid>
-
-				<Border Grid.Row="12"
-						BorderThickness="0 1 0 0"
-						BorderBrush="Gray">
-				</Border>
-
-				<Grid Grid.Row="13"
-					  Margin="5"
-					  HorizontalAlignment="Stretch">
-					<ListView Height="100"
-							  BorderThickness="0"
+					<ListView BorderThickness="0"
 							  ItemsSource="{Binding ImagesPath}" />
 				</Grid>
 
+				<Grid Grid.Row="13"
+					  Margin="10">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<Button Height="30"
+							Width="90"
+							Grid.Column="0"
+							Content="Preview"
+							Command="{Binding PreviewCommand}" />
+					<Button Height="30"
+							Width="90"
+							Grid.Column="1"
+							Content="Pack and Save"
+							Command="{Binding PackCommand}" />
+				</Grid>
+
 				<Border Grid.Row="14"
-						BorderThickness="0 1 0 0"
-						BorderBrush="Gray">
-				</Border>
-
-				<Button Grid.Row="16"
-						Height="30"
-						Margin="10"
-						Content="Pack"
-						Command="{Binding PackCommand}" />
-
-				<Border Grid.Row="17"
 						Background="LightGray"
 						AllowDrop="True">
 					<StackPanel Orientation="Vertical"

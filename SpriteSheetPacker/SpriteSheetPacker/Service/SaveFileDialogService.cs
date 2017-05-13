@@ -12,7 +12,8 @@ namespace SpriteSheetPacker.Service
 			{
 				Title = "Save Texture",
 				Filter = "png files (*.png)|*.png|All files (*.*)|*.*",
-				FilterIndex = 2,
+				FilterIndex = 1,
+				AddExtension = true,
 				RestoreDirectory = true
 			};
 

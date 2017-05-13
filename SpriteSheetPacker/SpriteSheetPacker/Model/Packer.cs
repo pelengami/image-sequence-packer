@@ -32,7 +32,19 @@ namespace SpriteSheetPacker.Model
 				if (!originalBitmaps.Any())
 					return null;
 
-				var avgCropSize = CalcAvgCropSizeAlpha(originalBitmaps, packParameters.AlphaTreshold);
+				Rectangle avgCropSize;
+
+				if (packParameters.IsAutoSizeEnabled)
+					avgCropSize = CalcAvgCropSizeAlpha(originalBitmaps, packParameters.AlphaTreshold);
+				else
+				{
+					var firstBitmap = originalBitmaps[0];
+
+					avgCropSize = new Rectangle(firstBitmap.Width / 2 - packParameters.CropSizeWidth / 2,
+						firstBitmap.Height / 2 - packParameters.CropSizeHeight / 2,
+						packParameters.CropSizeWidth,
+						packParameters.CropSizeHeight);
+				}
 
 				var eachTextureWidth = (int)packParameters.OutputTextureSize.Width / packParameters.ColumnsCount - packParameters.Padding * 2;
 				var eachTextureHeight = (int)packParameters.OutputTextureSize.Height / packParameters.RowsCount - packParameters.Padding * 2;
@@ -41,8 +53,8 @@ namespace SpriteSheetPacker.Model
 
 				foreach (var bitmap in originalBitmaps)
 				{
-					var cropedBitmap = CropBitmap(bitmap.ToBitmapSource(), avgCropSize);
-					var resizedBitmap = ImageResizer.CreateResizedBitmap(cropedBitmap.Source, eachTextureWidth, eachTextureHeight);
+					var cropedBitmap = CropBitmap(bitmap, avgCropSize);
+					var resizedBitmap = ImageResizer.CreateResizedBitmap(cropedBitmap.ToBitmapSource(), eachTextureWidth, eachTextureHeight);
 					resizedBitmaps.Add(resizedBitmap);
 				}
 
@@ -81,12 +93,12 @@ namespace SpriteSheetPacker.Model
 
 				lockBitmap.UnlockBits();
 
-				hOffset += bitmap.Width + packParameters.Padding;
+				hOffset += bitmap.Width + packParameters.Padding * 2;
 
 				if (hOffset + bitmap.Width + packParameters.Padding > (int)packParameters.OutputTextureSize.Width)
 				{
 					hOffset = packParameters.Padding;
-					vOffset += bitmap.Height + packParameters.Padding;
+					vOffset += bitmap.Height + packParameters.Padding * 2;
 				}
 			}
 
@@ -95,14 +107,19 @@ namespace SpriteSheetPacker.Model
 			return packedBitmap;
 		}
 
-		private CroppedBitmap CropBitmap(BitmapSource bitmapSource, Rectangle cropSize)
+		private Bitmap CropBitmap(Bitmap bitmap, Rectangle cropSize)
 		{
-			var rect = new Int32Rect(cropSize.X, cropSize.Y, cropSize.Width, cropSize.Height);
-			var croppedBitmap = new CroppedBitmap(bitmapSource, rect);
-			return croppedBitmap;
+			var target = new Bitmap(cropSize.Width, cropSize.Height);
+
+			using (var graphics = Graphics.FromImage(target))
+			{
+				graphics.DrawImage(bitmap, new Rectangle(0, 0, target.Width, target.Height),
+					cropSize,
+					GraphicsUnit.Pixel);
+			}
+
+			return target;
 		}
-
-
 
 		private static Rectangle CalcAvgCropSizeAlpha(List<Bitmap> bitmaps, int alphaThreshold)
 		{
@@ -122,7 +139,7 @@ namespace SpriteSheetPacker.Model
 				height = Math.Max(height, tempCropRc.Height);
 			}
 
-			return new Rectangle(minX, minY, width - minX, height - minY);
+			return new Rectangle(minX, minY, width, height);
 		}
 
 		private static Rectangle CalcCropSizeAlpha(Bitmap bitmap, int alphaThreshold)

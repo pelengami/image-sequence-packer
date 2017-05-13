@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -17,10 +18,19 @@ namespace SpriteSheetPacker
 {
 	public sealed class MainWindowViewModel : INotifyPropertyChanged
 	{
+		private const int DefaultColumnsCount = 2;
+		private const int DefaultRowsCount = 2;
+		private const int DefaultPadding = 20;
+		private const bool DefaultIsCropAutoSizeEnabled = true;
+		private const int DefaultAlphaThreshold = 100;
+		private readonly Size _defaultSize = new Size(2048, 2048);
+
 		private BitmapSource _packedImagePreview;
 		private readonly IPacker _packer;
 		private readonly SaveFileDialogService _saveFileDialogService;
 		private bool _isPacking;
+		private int _cropSizeWidth;
+		private int _cropSizeHeight;
 
 		public MainWindowViewModel()
 		{
@@ -31,10 +41,14 @@ namespace SpriteSheetPacker
 			_packer = new Packer();
 
 			PackCommand = new RelayCommand(OnPackCommand, OnCanExecutePackCommand);
+			PreviewCommand = new RelayCommand(OnPreviewCommand, OnCanExecutePackCommand);
 			DropCommand = new RelayCommand<DragEventArgs>(OnDropCommand);
 
-			Padding = 20;
-			AlphaTreshold = 100;
+			RowsCount = DefaultRowsCount;
+			ColumnsCount = DefaultColumnsCount;
+			Padding = DefaultPadding;
+			AlphaTreshold = DefaultAlphaThreshold;
+
 			OutputTextureSizes = new List<Size>
 			{
 				new Size(512, 512),
@@ -42,27 +56,57 @@ namespace SpriteSheetPacker
 				new Size(2048, 2048),
 				new Size(4096, 4096)
 			};
+
+			IsCropAutoSizeEnabled = DefaultIsCropAutoSizeEnabled;
+
+			SelectedOutputTextureSize = _defaultSize;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public ICommand PackCommand { get; set; }
 
+		public ICommand PreviewCommand { get; set; }
+
 		public ICommand DropCommand { get; set; }
 
-		public string TilesX { get; set; }
+		public int ColumnsCount { get; set; }
 
-		public string TilesY { get; set; }
+		public int RowsCount { get; set; }
 
 		public int AlphaTreshold { get; set; }
 
 		public int Padding { get; set; }
 
-		public bool IsBlackTrimmingEnabled { get; set; }
+		public int CropSizeWidth
+		{
+			get => _cropSizeWidth;
+			set
+			{
+				if (value == _cropSizeWidth)
+					return;
+				_cropSizeWidth = value;
+				OnPropertyChanged();
+			}
+		}
 
-		public bool IsLivePreviewEnabed { get; set; }
+		public int CropSizeHeight
+		{
+			get => _cropSizeHeight;
+			set
+			{
+				if (value == _cropSizeHeight)
+					return;
+				_cropSizeHeight = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public bool IsCropAutoSizeEnabled { get; set; }
 
 		public List<Size> OutputTextureSizes { get; }
+
+		public Size SelectedOutputTextureSize { get; set; }
 
 		public BitmapSource PackedImagePreview
 		{
@@ -90,19 +134,29 @@ namespace SpriteSheetPacker
 			}
 		}
 
-		private async void OnPackCommand()
+		private async Task<bool> PackImages()
 		{
 			IsPacking = true;
 
-			var packParameters = new PackParameters(2, 1, 100, 20, new Size(512, 512), ImagesPath.ToList());
+			var packParameters = new PackParameters(ColumnsCount, RowsCount, AlphaTreshold, Padding, SelectedOutputTextureSize,
+				ImagesPath.ToList(), IsCropAutoSizeEnabled, CropSizeWidth, CropSizeHeight);
+
 			var packedImage = await _packer.PackAsync(packParameters);
 
 			IsPacking = false;
 
 			if (packedImage == null)
-				return;
+				return false;
 
 			PackedImagePreview = packedImage.ToBitmapSource();
+
+			return true;
+		}
+
+		private async void OnPackCommand()
+		{
+			if (!await PackImages())
+				return;
 
 			string saveFilePath;
 			if (!_saveFileDialogService.SaveFileDialog(out saveFilePath))
@@ -110,6 +164,11 @@ namespace SpriteSheetPacker
 
 			var bitmapWriter = new BitmapStreamWriter();
 			bitmapWriter.Write(saveFilePath, PackedImagePreview);
+		}
+
+		private async void OnPreviewCommand()
+		{
+			await PackImages();
 		}
 
 		private bool OnCanExecutePackCommand()
@@ -134,10 +193,7 @@ namespace SpriteSheetPacker
 
 				if (extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase) ||
 					extension.Equals(".jpg", StringComparison.CurrentCultureIgnoreCase))
-				{
 					ImagesPath.Add(file);
-					return;
-				}
 			}
 		}
 
