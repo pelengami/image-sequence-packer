@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -27,10 +28,10 @@ namespace SpriteSheetPacker
 
 			_saveFileDialogService = new SaveFileDialogService();
 
-			var foreignFunctionCaller = new ForeignFunctionCaller();
-			_packer = new ForeignPacker(foreignFunctionCaller);
+			_packer = new Packer();
 
-			PackCommand = new RelayCommand(OnPackCommand);
+			PackCommand = new RelayCommand(OnPackCommand, OnCanExecutePackCommand);
+			DropCommand = new RelayCommand<DragEventArgs>(OnDropCommand);
 
 			Padding = 20;
 			AlphaTreshold = 100;
@@ -46,6 +47,8 @@ namespace SpriteSheetPacker
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public ICommand PackCommand { get; set; }
+
+		public ICommand DropCommand { get; set; }
 
 		public string TilesX { get; set; }
 
@@ -91,17 +94,50 @@ namespace SpriteSheetPacker
 		{
 			IsPacking = true;
 
-			var packerImage = await _packer.PackAsync(new PackParameters(2, 2, 50, 20, new Size(1024, 768), ImagesPath.ToList()));
-
-			PackedImagePreview = packerImage.ToBitmapSource();
+			var packParameters = new PackParameters(2, 1, 100, 20, new Size(512, 512), ImagesPath.ToList());
+			var packedImage = await _packer.PackAsync(packParameters);
 
 			IsPacking = false;
 
+			if (packedImage == null)
+				return;
+
+			PackedImagePreview = packedImage.ToBitmapSource();
+
 			string saveFilePath;
-			if (_saveFileDialogService.SaveFileDialog(out saveFilePath))
+			if (!_saveFileDialogService.SaveFileDialog(out saveFilePath))
+				return;
+
+			var bitmapWriter = new BitmapStreamWriter();
+			bitmapWriter.Write(saveFilePath, PackedImagePreview);
+		}
+
+		private bool OnCanExecutePackCommand()
+		{
+			return ImagesPath.Any();
+		}
+
+		private void OnDropCommand(DragEventArgs obj)
+		{
+			if (!obj.Data.GetDataPresent(DataFormats.FileDrop))
+				return;
+
+			string[] files = (string[])obj.Data.GetData(DataFormats.FileDrop);
+			if (files == null)
+				return;
+
+			foreach (var file in files)
 			{
-				var bitmapWriter = new BitmapStreamWriter();
-				bitmapWriter.Write(saveFilePath, PackedImagePreview);
+				var extension = System.IO.Path.GetExtension(file);
+				if (extension == null)
+					continue;
+
+				if (extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase) ||
+					extension.Equals(".jpg", StringComparison.CurrentCultureIgnoreCase))
+				{
+					ImagesPath.Add(file);
+					return;
+				}
 			}
 		}
 

@@ -5,11 +5,13 @@
 					  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 					  xmlns:local="clr-namespace:SpriteSheetPacker"
 					  xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+					  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+					  xmlns:command="http://www.galasoft.ch/mvvmlight"
 					  mc:Ignorable="d"
 					  WindowStartupLocation="CenterScreen"
 					  GlowBrush="Black"
 					  Title="SpriteSheetPacker"
-					  Height="550"
+					  Height="620"
 					  Width="800">
 	<Window.Resources>
 		<local:MainWindowViewModel x:Key="MainWindowViewModel" />
@@ -23,13 +25,16 @@
 		<Image Margin="5"
 			   Source="{Binding PackedImagePreview}"></Image>
 
-		<controls:ProgressRing Visibility="{Binding IsPacking, Converter={StaticResource BooleanToVisibilityConverter}}"></controls:ProgressRing>
+		<controls:ProgressRing Grid.Column="0"
+							   Visibility="{Binding IsPacking, Converter={StaticResource BooleanToVisibilityConverter}}"></controls:ProgressRing>
 
 		<Border Grid.Column="1"
 				BorderThickness="1 0 0 0"
 				BorderBrush="Gray">
 			<Grid>
 				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"></RowDefinition>
+					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
@@ -151,12 +156,7 @@
 				<Grid Grid.Row="9"
 					  Margin="5"
 					  HorizontalAlignment="Stretch">
-					<Grid.RowDefinitions>
-						<RowDefinition />
-						<RowDefinition />
-					</Grid.RowDefinitions>
-					<CheckBox Grid.Row="1"
-							  Margin="5"
+					<CheckBox Margin="5"
 							  Height="20"
 							  Content="Black Trimming"
 							  FontWeight="Bold"
@@ -171,12 +171,7 @@
 				<Grid Grid.Row="11"
 					  Margin="5"
 					  HorizontalAlignment="Stretch">
-					<Grid.RowDefinitions>
-						<RowDefinition />
-						<RowDefinition />
-					</Grid.RowDefinitions>
-					<CheckBox Grid.Row="1"
-							  Margin="5"
+					<CheckBox Margin="5"
 							  Height="20"
 							  Content="Live Preview"
 							  FontWeight="Bold"
@@ -188,23 +183,43 @@
 						BorderBrush="Gray">
 				</Border>
 
-				<Button Grid.Row="14"
+				<Grid Grid.Row="13"
+					  Margin="5"
+					  HorizontalAlignment="Stretch">
+					<ListView Height="100"
+							  BorderThickness="0"
+							  ItemsSource="{Binding ImagesPath}" />
+				</Grid>
+
+				<Border Grid.Row="14"
+						BorderThickness="0 1 0 0"
+						BorderBrush="Gray">
+				</Border>
+
+				<Button Grid.Row="16"
 						Height="30"
 						Margin="10"
 						Content="Pack"
 						Command="{Binding PackCommand}" />
 
-				<Border Grid.Row="15"
-						Background="LightGray">
+				<Border Grid.Row="17"
+						Background="LightGray"
+						AllowDrop="True">
 					<StackPanel Orientation="Vertical"
 								Margin="10">
 						<TextBlock HorizontalAlignment="Center"
 								   Text="Drop Images"
-								   FontWeight="Bold"></TextBlock>
+								   FontWeight="Bold" />
 						<Image Width="64"
 							   Height="64"
-							   Source="Images/images.png"></Image>
+							   Source="Images/images.png" />
 					</StackPanel>
+					<i:Interaction.Triggers>
+						<i:EventTrigger EventName="Drop">
+							<command:EventToCommand Command="{Binding Path=DropCommand}"
+													PassEventArgsToCommand="True" />
+						</i:EventTrigger>
+					</i:Interaction.Triggers>
 				</Border>
 			</Grid>
 		</Border>
