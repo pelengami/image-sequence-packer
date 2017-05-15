@@ -11,7 +11,7 @@ namespace ImageSequencePacker.Service
 			var saveFileDialog = new SaveFileDialog
 			{
 				Title = "Save Texture",
-				Filter = "png files (*.png)|*.png|All files (*.*)|*.*",
+				Filter = "Png files (*.png)|*.png|All files (*.*)|*.*",
 				FilterIndex = 1,
 				AddExtension = true,
 				RestoreDirectory = true

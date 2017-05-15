@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using ImageSequencePacker.Extensions;
 using ImageSequencePacker.Util;
 
 namespace ImageSequencePacker.Model
@@ -25,6 +24,8 @@ namespace ImageSequencePacker.Model
 				foreach (var path in packParameters.ImagesPath)
 				{
 					var bitmap = new BitmapReaderWriter().Read(path);
+					if (bitmap == null)
+						continue;
 					originalBitmaps.Add(bitmap);
 				}
 
@@ -53,7 +54,7 @@ namespace ImageSequencePacker.Model
 				foreach (var bitmap in originalBitmaps)
 				{
 					var cropedBitmap = BitmapUitl.CropBitmap(bitmap, avgCropSize);
-					var resizedBitmap = BitmapUitl.CreateResizedBitmap(cropedBitmap.ToBitmapSource(), eachTextureWidth, eachTextureHeight);
+					var resizedBitmap = BitmapUitl.ResizeBitmap(cropedBitmap, eachTextureWidth, eachTextureHeight);
 					resizedBitmaps.Add(resizedBitmap);
 				}
 

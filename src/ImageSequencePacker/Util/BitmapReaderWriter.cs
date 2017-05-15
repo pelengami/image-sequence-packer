@@ -1,25 +1,35 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Windows.Media.Imaging;
+﻿using System;
+using System.Drawing;
+using System.Windows;
 
 namespace ImageSequencePacker.Util
 {
 	internal sealed class BitmapReaderWriter
 	{
-		public void Write(string filePath, BitmapSource bitmapSource)
+		public void Write(string filePath, Bitmap bitmap)
 		{
-			using (var fileStream = new FileStream(filePath, FileMode.Create))
+			try
 			{
-				BitmapEncoder encoder = new PngBitmapEncoder();
-				encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-				encoder.Save(fileStream);
+				bitmap.Save(filePath);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.ToString());
 			}
 		}
 
 		public Bitmap Read(string filePath)
 		{
-			var bitmap = (Bitmap)Image.FromFile(filePath);
-			return bitmap;
+			try
+			{
+				var bitmap = (Bitmap)Image.FromFile(filePath);
+				return bitmap;
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.ToString());
+				return null;
+			}
 		}
 	}
 }
