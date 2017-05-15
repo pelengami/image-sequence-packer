@@ -6,30 +6,48 @@
 					  xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
 					  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 					  xmlns:command="http://www.galasoft.ch/mvvmlight"
-					  xmlns:imageSequencePacker="clr-namespace:ImageSequencePacker"
 					  mc:Ignorable="d"
 					  WindowTitleBrush="Black"
 					  WindowStartupLocation="CenterScreen"
 					  GlowBrush="Black"
 					  Title="Image Sequence Packer"
 					  Height="650"
-					  Width="700">
-	<Window.Resources>
-		<imageSequencePacker:MainWindowViewModel x:Key="MainWindowViewModel" />
-	</Window.Resources>
-	<Grid DataContext="{StaticResource MainWindowViewModel}">
+					  Width="700"
+					  DataContext="{Binding RelativeSource={RelativeSource Self}}"
+					  AllowDrop="True">
+	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="220" />
+			<ColumnDefinition Width="4*" />
+			<ColumnDefinition Width="1.8*" />
 		</Grid.ColumnDefinitions>
 
-		<Image Margin="5"
-			   Source="{Binding PackedImagePreview}"></Image>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="30"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+		</Grid.RowDefinitions>
 
-		<controls:ProgressRing Grid.Column="0"
+		<StackPanel Orientation="Horizontal"
+					Margin="0 5"
+					VerticalAlignment="Top"
+					HorizontalAlignment="Center">
+			<TextBlock Text="Images: "
+					   FontSize="14" />
+			<TextBlock Text="{Binding HelpfulTitle}"
+					   FontSize="14" />
+		</StackPanel>
+
+		<Image Grid.Column="0"
+			   Grid.Row="1"
+			   Source="{Binding PackedImagePreview}" />
+
+		<controls:ProgressRing Grid.Row="0"
+							   Grid.RowSpan="2"
+							   Grid.Column="0"
 							   Visibility="{Binding IsPacking, Converter={StaticResource BooleanToVisibilityConverter}}"></controls:ProgressRing>
 
 		<Border Grid.Column="1"
+				Grid.Row="0"
+				Grid.RowSpan="2"
 				BorderThickness="1 0 0 0"
 				BorderBrush="Gray">
 			<Grid>
@@ -45,7 +63,6 @@
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="120"></RowDefinition>
 					<RowDefinition Height="*"></RowDefinition>
 					<RowDefinition Height="Auto"></RowDefinition>
 					<RowDefinition Height="110"></RowDefinition>
@@ -70,17 +87,17 @@
 					<TextBlock HorizontalAlignment="Center"
 							   FontWeight="Bold"
 							   Grid.ColumnSpan="2"
-							   Text="Rows/Columns" />
-					<TextBox Grid.Row="1"
-							 Grid.Column="0"
-							 Height="20"
-							 Margin="5"
-							 Text="{Binding RowsCount}" />
+							   Text="Columns/Rows" />
 					<TextBox Grid.Row="1"
 							 Grid.Column="1"
 							 Margin="5"
 							 Height="20"
 							 Text="{Binding ColumnsCount}" />
+					<TextBox Grid.Row="1"
+							 Grid.Column="0"
+							 Height="20"
+							 Margin="5"
+							 Text="{Binding RowsCount}" />
 				</Grid>
 
 				<Border Grid.Row="2"
@@ -196,10 +213,10 @@
 					  Margin="5"
 					  HorizontalAlignment="Stretch">
 					<ListView BorderThickness="0"
-							  ItemsSource="{Binding ImagesPath}" />
+							  ItemsSource="{Binding ImagePaths}" />
 				</Grid>
 
-				<Grid Grid.Row="13"
+				<Grid Grid.Row="12"
 					  Margin="10">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="*" />
@@ -217,7 +234,7 @@
 							Command="{Binding PackCommand}" />
 				</Grid>
 
-				<Border Grid.Row="14"
+				<Border Grid.Row="13"
 						Background="LightGray"
 						AllowDrop="True">
 					<StackPanel Orientation="Vertical"
@@ -229,15 +246,15 @@
 							   Height="64"
 							   Source="Images/images.png" />
 					</StackPanel>
-					<i:Interaction.Triggers>
-						<i:EventTrigger EventName="Drop">
-							<command:EventToCommand Command="{Binding Path=DropCommand}"
-													PassEventArgsToCommand="True" />
-						</i:EventTrigger>
-					</i:Interaction.Triggers>
 				</Border>
 			</Grid>
 		</Border>
 
 	</Grid>
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="Drop">
+			<command:EventToCommand Command="{Binding Path=DropCommand}"
+									PassEventArgsToCommand="True" />
+		</i:EventTrigger>
+	</i:Interaction.Triggers>
 </controls:MetroWindow>

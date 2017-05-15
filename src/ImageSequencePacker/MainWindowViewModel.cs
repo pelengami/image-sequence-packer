@@ -22,19 +22,20 @@ namespace ImageSequencePacker
 	{
 		private const int DefaultColumnsCount = 2;
 		private const int DefaultRowsCount = 2;
-		private const int DefaultPadding = 20;
+		private const int DefaultPadding = 5;
 		private const bool DefaultIsCropAutoSizeEnabled = true;
-		private const int DefaultAlphaThreshold = 100;
+		private const int DefaultAlphaThreshold = 5;
 		private readonly Size _defaultSize = new Size(2048, 2048);
 
 		private BitmapSource _packedImagePreview;
 		private readonly IPacker _packer;
 		private readonly SaveFileDialogService _saveFileDialogService;
 		private bool _isPacking;
+		private string _helpfulTitle;
 
 		public MainWindowViewModel()
 		{
-			ImagesPath = new ObservableCollection<string>();
+			ImagePaths = new ObservableCollection<string>();
 
 			_saveFileDialogService = new SaveFileDialogService();
 
@@ -88,6 +89,18 @@ namespace ImageSequencePacker
 
 		public Size SelectedOutputTextureSize { get; set; }
 
+		public string HelpfulTitle
+		{
+			get => _helpfulTitle;
+			set
+			{
+				if (value == _helpfulTitle)
+					return;
+				_helpfulTitle = value;
+				OnPropertyChanged();
+			}
+		}
+
 		public BitmapSource PackedImagePreview
 		{
 			get => _packedImagePreview;
@@ -100,7 +113,7 @@ namespace ImageSequencePacker
 			}
 		}
 
-		public ObservableCollection<string> ImagesPath { get; }
+		public ObservableCollection<string> ImagePaths { get; }
 
 		public bool IsPacking
 		{
@@ -119,7 +132,7 @@ namespace ImageSequencePacker
 			IsPacking = true;
 
 			var packParameters = new PackParameters(ColumnsCount, RowsCount, AlphaThreshold, Padding, SelectedOutputTextureSize,
-				ImagesPath.ToList(), IsCropAutoSizeEnabled, CropSizeWidth, CropSizeHeight);
+				ImagePaths.ToList(), IsCropAutoSizeEnabled, CropSizeWidth, CropSizeHeight);
 
 			var packedImage = await _packer.PackAsync(packParameters);
 
@@ -160,7 +173,7 @@ namespace ImageSequencePacker
 			if (files == null)
 				return;
 
-			ImagesPath.Clear();
+			ImagePaths.Clear();
 
 			foreach (var file in files.OrderBy(f => f))
 			{
@@ -170,8 +183,10 @@ namespace ImageSequencePacker
 
 				if (extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase) ||
 					extension.Equals(".jpg", StringComparison.CurrentCultureIgnoreCase))
-					ImagesPath.Add(file);
+					ImagePaths.Add(file);
 			}
+
+			HelpfulTitle = ImagePaths.Count.ToString();
 		}
 
 		private void OnPropertyChanged([CallerMemberName] string propertyName = null)
