@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using ImageSequencePacker.Extensions;
 using ImageSequencePacker.Model;
 using ImageSequencePacker.Service;
 using ImageSequencePacker.Util;
+using Size = System.Windows.Size;
 
 namespace ImageSequencePacker
 {
@@ -112,7 +114,7 @@ namespace ImageSequencePacker
 			}
 		}
 
-		private async Task<bool> PackImages()
+		private async Task<Bitmap> PackImages()
 		{
 			IsPacking = true;
 
@@ -123,17 +125,17 @@ namespace ImageSequencePacker
 
 			IsPacking = false;
 
-			if (packedImage == null)
-				return false;
+			if (packedImage != null)
+				PackedImagePreview = packedImage.ToBitmapSource();
 
-			PackedImagePreview = packedImage.ToBitmapSource();
-
-			return true;
+			return packedImage;
 		}
 
 		private async void OnPackCommand()
 		{
-			if (!await PackImages())
+			var packedBitmap = await PackImages();
+
+			if (packedBitmap == null)
 				return;
 
 			string saveFilePath;
@@ -141,7 +143,7 @@ namespace ImageSequencePacker
 				return;
 
 			var bitmapWriter = new BitmapReaderWriter();
-			bitmapWriter.Write(saveFilePath, PackedImagePreview);
+			bitmapWriter.Write(saveFilePath, packedBitmap);
 		}
 
 		private async void OnPreviewCommand()
@@ -158,7 +160,9 @@ namespace ImageSequencePacker
 			if (files == null)
 				return;
 
-			foreach (var file in files)
+			ImagesPath.Clear();
+
+			foreach (var file in files.OrderBy(f => f))
 			{
 				var extension = System.IO.Path.GetExtension(file);
 				if (extension == null)

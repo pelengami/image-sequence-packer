@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -14,36 +15,22 @@ namespace ImageSequencePacker.Util
 
 			using (var graphics = Graphics.FromImage(target))
 			{
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.DrawImage(bitmap, new Rectangle(0, 0, target.Width, target.Height),
-					cropSize,
-					GraphicsUnit.Pixel);
+					cropSize, GraphicsUnit.Pixel);
 			}
 
 			return target;
 		}
 
-		public static Bitmap CreateResizedBitmap(ImageSource source, int width, int height)
+		public static Bitmap ResizeBitmap(Bitmap bitmapToResize, int width, int height)
 		{
-			var rect = new Rect(0, 0, width, height);
-
-			var drawingVisual = new DrawingVisual();
-			using (var drawingContext = drawingVisual.RenderOpen())
-				drawingContext.DrawImage(source, rect);
-
-			var resizedImage = new RenderTargetBitmap((int)rect.Width, (int)rect.Height,
-				96, 96,
-				PixelFormats.Default);
-			resizedImage.Render(drawingVisual);
-
-			Bitmap bitmap;
-			using (var stream = new MemoryStream())
+			var bitmap = new Bitmap(width, height);
+			using (var graphics = Graphics.FromImage((Image)bitmap))
 			{
-				BitmapEncoder encoder = new BmpBitmapEncoder();
-				encoder.Frames.Add(BitmapFrame.Create(resizedImage));
-				encoder.Save(stream);
-				bitmap = new Bitmap(stream);
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.DrawImage(bitmapToResize, 0, 0, width, height);
 			}
-
 			return bitmap;
 		}
 	}

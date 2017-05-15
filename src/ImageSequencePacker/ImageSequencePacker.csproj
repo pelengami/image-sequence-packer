@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>ImageSequencePacker</RootNamespace>
     <AssemblyName>ImageSequencePacker</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -119,6 +119,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Util\BitmapUitl.cs" />
     <Compile Include="Util\LockBitmap.cs" />
     <Compile Include="Service\SaveFileDialogService.cs" />
@@ -133,7 +134,6 @@
     </Compile>
     <Compile Include="Model\Packer.cs" />
     <Compile Include="Model\IPacker.cs" />
-    <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
